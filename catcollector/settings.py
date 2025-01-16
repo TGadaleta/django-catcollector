@@ -12,6 +12,27 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import environ  
+import dj_database_url
+import django_heroku
+
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
+
+# These are required
+DATABASE_URL=env('DATABASE_URL')
+SECRET_KEY=env('SECRET_KEY')
+
+# These are not required.
+# If you want to connect locally to the database you may need them
+# Something to be aware of, nothing more.
+
+# PGDATABASE=env('PGDATABASE')
+# PGHOST=env('PGHOST')
+# PGPASSWORD=env('PGPASSWORD')
+# PGPORT=env('PGPORT')
+# PGUSER=env('PGUSER')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +47,7 @@ SECRET_KEY = 'django-insecure-sw1y@5_xh_^a9+sh1sn!&_z9m2e-h9)m-10et)ybiwzp4qr+_&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] # allows requests from localhost - will need to update again for deployment
+ALLOWED_HOSTS = ['127.0.0.1', '.herokuapp.com'] # allows requests from localhost - will need to update again for deployment
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
@@ -49,6 +70,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -105,11 +127,16 @@ WSGI_APPLICATION = 'catcollector.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'catcollector',
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'catcollector',
-    }
+    'default': 
+        dj_database_url.config('DATABASE_URL')
 }
 
 
@@ -153,3 +180,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Add this to the very bottom of your settings.py file
+# If you don't your app will not deploy properly
+django_heroku.settings(locals())
